@@ -27,7 +27,6 @@ main_folder:
 ├── gen_model/ "to get the model in experiment" 
 ├── gen_table/ "to get the pictures and tables in experiment"
 ├── nc_coverage/ "neuron coverage test criteria"
-├── tri_projection/ "triangular projection test criteria"
 ├── utils/ "some tool functions"
 ├── exp_correlation.py  "RQ1"
 ├── exp_selection.py	"RQ2"
