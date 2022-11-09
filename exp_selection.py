@@ -8,7 +8,7 @@ from keras.callbacks import ModelCheckpoint
 from keras.engine.saving import load_model
 from tqdm import tqdm
 
-from tri_projection.TriangularProjection import TriProCover
+from pt import TriProCover
 from utils import model_conf
 import numpy as np
 import pandas as pd
@@ -255,11 +255,11 @@ def prepare_space_ps(tripro_cover: TriProCover, nb_classes, base_path, model_pat
     name = "DeepSpace"
     for pretreatment, method in zip(pretreatment_arr, method_arr):
         s = time.time()
-        x_test_space, y_test_space, ix_arr, cov_rate, max_cov_num = tripro_cover.rank_greedy(x_s, y_s,
+        x_s_prob_matrix = ori_model.predict(x_s)
+        x_test_space, y_test_space, ix_arr, cov_rate, max_cov_num = tripro_cover.rank_greedy(x_s, x_s_prob_matrix,
+                                                                                             y_s,
                                                                                              nb_classes,
-                                                                                             ori_model,
-                                                                                             deep_num,
-                                                                                             use_pretreatment=pretreatment)
+                                                                                             deep_num)
 
         e = time.time()
         csv_data["name"] = name + "_" + method
@@ -402,7 +402,7 @@ def exp(model_name, data_name, base_path, ):
     os.makedirs(ps_path, exist_ok=True)
     ps_csv_dir = "{}/priority_sequence".format(base_path)
     select_size_ratio_arr = [0.025, 0.05, 0.075, 0.1, 0.125, 0.15]
-    tripro_cover = TriProCover(is_save_profile=True, base_path=base_path, suffix="")
+    tripro_cover = TriProCover()
     prefix = "_" + mode
     ps_csv_path = "{}_{}.csv".format(ps_csv_dir, mode)
     if mode == "dau":

@@ -16,7 +16,7 @@ from gen_data.MnistDau import MnistDau
 import matplotlib.pyplot as plt
 
 from gen_data.SvhnDau import SvhnDau
-from tri_projection.TriangularProjection import TriProCover
+from pt import TriProCover
 
 plt.switch_backend('agg')
 from utils.utils import shuffle_data, add_df, num_to_str
@@ -104,8 +104,9 @@ def exp_detail(deep_num, tripro_cover: TriProCover, x_select, y_select, nb_class
     # print(len(x_select))
     if use_space:
         s = time.time()
-        sp_c_arr, sp_v_arr = tripro_cover.cal_triangle_cov(x_select, y_select, nb_classes, ori_model, deep_num,
-                                                           by_deep_num=True)  # 把中间结果也记录一下
+        x_select_prob_matrix = ori_model.predict(x_select)
+        sp_c_arr, sp_v_arr = tripro_cover.cal_triangle_cov(x_select_prob_matrix, y_select, nb_classes, deep_num,
+                                                           by_deep_num=True)
         e = time.time()
         sp_c_str_arr = [num_to_str(x, 5) for x in sp_c_arr]
         sp_data2 = {"sp_time": e - s}
@@ -177,7 +178,7 @@ def exp(model_name, data_name, base_path, ):
         dop_name_arr = attack_name_arr
         adv = MyAdv()
     print(mode, dop_name_arr)
-    tripro_cover = TriProCover(is_save_profile=True, base_path=base_path, suffix="")
+    tripro_cover = TriProCover()
     # 每个组合的扩增算子
     # 共有i种组合
     for ii in range(0, len(dop_name_arr) + 1, 1):

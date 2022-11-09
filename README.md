@@ -14,16 +14,16 @@ Based on the application scenarios of detection, selection and generation, we fu
 
 ```
 pip install -r requirements.txt
+pip install ./dist/py37/pt-1.0-py3-none-any.whl
 ```
 
 ## The structure of the repository
 
-In the experiment, our method and all baselines are conducted upon `Keras 2.3.1` with `TensorFlow 1.13.1`. All experiments are performed on a `Ubuntu 18.04.3 LTS server` with `two NVIDIA Tesla V100 GPU`, one 10-core processor "Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz", and `120GB memory`.
+In the experiment, our method and all baselines are conducted upon `python 3.7` with` Keras 2.3.1` and  `TensorFlow 1.13.1`. All experiments are performed on a `Ubuntu 18.04.3 LTS server` with `two NVIDIA Tesla V100 GPU`, one 10-core processor "Intel(R) Xeon(R) Gold 6248 CPU @ 2.50GHz", and `120GB memory`.
 
 main_folder:
 
 ```
-├── deephunter/ "a coverage-guided fuzz testing framework"
 ├── gen_data/ "load data"
 ├── gen_model/ "to get the model in experiment" 
 ├── gen_table/ "to get the pictures and tables in experiment"

@@ -1,12 +1,11 @@
 import os
-
+import numpy as np
 import keras
 from keras.callbacks import ModelCheckpoint
 from keras.engine.saving import load_model
 from termcolor import colored
-
 from gen_data.MnistDau import MnistDau
-from tri_projection.TriangularProjection import TriProCover
+from pt import TriProCover
 from utils import model_conf
 from utils.utils import num_to_str, shuffle_data
 
@@ -39,7 +38,7 @@ if __name__ == '__main__':
     base_path = "demo"
     os.makedirs(base_path, exist_ok=True)
     deep_num = 4
-    tripro_cover = TriProCover(is_save_profile=True, base_path=base_path, suffix="")
+    tripro_cover = TriProCover()
 
     # mnist data
     color_print("load LeNet-5 model and MNIST data sets", "blue")
@@ -57,21 +56,23 @@ if __name__ == '__main__':
 
     # metrics
     color_print("calculate ori test pt coverage", "blue")
-    sp_c_arr, sp_v_arr = tripro_cover.cal_triangle_cov(x_test, y_test, nb_classes, ori_model, deep_num,
+    x_test_prob_matrix = ori_model.predict(x_test)
+    sp_c_arr, sp_v_arr = tripro_cover.cal_triangle_cov(x_test_prob_matrix, y_test, nb_classes, deep_num,
                                                        by_deep_num=True)
 
     sp_c_str_arr = [num_to_str(x, 5) for x in sp_c_arr]
     for i, ratio in enumerate(sp_c_str_arr):
         print("ori data. deep: {} pt coverage: {}".format(i, ratio))
 
-    # data augmentation
+    # # data augmentation
     color_print("data augmentation", "blue")
     dau.run("test")
     x_dau, y_dau = dau.load_dau_data("SF", use_cache=False)
 
     # metrics
     color_print("calculate aug test pt coverage", "blue")
-    sp_c_arr, sp_v_arr = tripro_cover.cal_triangle_cov(x_dau, y_dau, nb_classes, ori_model, deep_num,
+    x_dau_prob_matrix = ori_model.predict(x_dau)
+    sp_c_arr, sp_v_arr = tripro_cover.cal_triangle_cov(x_dau_prob_matrix, y_dau, nb_classes, deep_num,
                                                        by_deep_num=True)
 
     sp_c_str_arr = [num_to_str(x, 5) for x in sp_c_arr]
@@ -84,9 +85,10 @@ if __name__ == '__main__':
     x_sel, y_sel = x_dau[:test_size // 2], y_dau[:test_size // 2]
     x_val, y_val = x_dau[test_size // 2:], y_dau[test_size // 2:]
     acc_val0 = ori_model.evaluate(x_val, keras.utils.np_utils.to_categorical(y_val, 10))[1]
-    xs, ys, ix_arr, cov_rate, max_cov_num = tripro_cover.rank_greedy(x_sel, y_sel, nb_classes,
-                                                                     ori_model, deep_num, )
-
+    x_sel_prob_matrix = ori_model.predict(x_sel)
+    xs, ys, ix_arr, cov_rate, max_cov_num = tripro_cover.rank_greedy(x_sel, x_sel_prob_matrix, y_sel, nb_classes,
+                                                                     deep_num)
+    xs = np.array(xs)
     print("max_cov_num: {} total_test_size: {}".format(max_cov_num, len(x_sel)))
 
     # retrain
@@ -95,7 +97,8 @@ if __name__ == '__main__':
     color_print("pt. retrain model with {} selected aug data".format(num), "blue")
     filepath = os.path.join(base_path, "pt_temp.h5")
     trained_model = train_model(ori_model, filepath, xs[:num],
-                                keras.utils.np_utils.to_categorical(ys[:num], 10), x_val, y_val)
+                                keras.utils.np_utils.to_categorical(ys[:num], 10), x_val,
+                                keras.utils.np_utils.to_categorical(y_val, 10), verbose=0)
     acc_val1 = trained_model.evaluate(x_val, keras.utils.np_utils.to_categorical(y_val, 10))[1]
     print("retrain model path: {}".format(filepath))
     print("pt. train acc improve {} -> {}".format(acc_val0, acc_val1))
@@ -106,7 +109,8 @@ if __name__ == '__main__':
     filepath = os.path.join(base_path, "rn_temp.h5")
     xr, yr = shuffle_data(x_sel, y_sel)
     trained_model = train_model(ori_model, filepath, xr[:num],
-                                keras.utils.np_utils.to_categorical(yr[:num], 10), x_val, y_val)
+                                keras.utils.np_utils.to_categorical(yr[:num], 10), x_val,
+                                keras.utils.np_utils.to_categorical(y_val, 10), verbose=0)
     acc_val2 = trained_model.evaluate(x_val, keras.utils.np_utils.to_categorical(y_val, 10))[1]
     print("retrain model path: {}".format(filepath))
     print("random. train acc improve {} -> {}".format(acc_val0, acc_val2))
