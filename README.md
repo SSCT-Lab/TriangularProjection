@@ -14,7 +14,6 @@ Based on the application scenarios of detection, selection and generation, we fu
 
 ```
 pip install -r requirements.txt
-pip install ./dist/py37/pt-1.0-py3-none-any.whl
 ```
 
 ## The structure of the repository
