@@ -1,0 +1,15 @@
+tensorflow
+keras
+numpy
+pytorch
+matplotlib
+pillow
+scikit-learn
+click
+future
+opencv-python
+scipy
+pandas
+tqdm
+requests
+xxhash
