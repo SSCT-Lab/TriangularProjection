@@ -23,6 +23,7 @@ In the experiment, our method and all baselines are conducted upon `python 3.7` 
 main_folder:
 
 ```
+├── deephunter/ "fuzzer"
 ├── gen_data/ "load data"
 ├── gen_model/ "to get the model in experiment" 
 ├── gen_table/ "to get the pictures and tables in experiment"
